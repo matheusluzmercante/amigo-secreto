@@ -2,6 +2,12 @@
  * Utilitários para formatação, validação e links de WhatsApp.
  */
 
+// Definição de emojis via escapes Unicode para imunidade contra corrupção de encoding (ANSI / UTF-8 no Windows)
+const EMOJI_PRESENTE = '\u{1F381}';   // 🎁
+const EMOJI_FESTA = '\u{1F389}';      // 🎉
+const EMOJI_APONTANDO = '\u{1F449}';  // 👉
+const EMOJI_SEGREDO = '\u{1F92B}';    // 🤫
+
 /**
  * Remove todos os caracteres não numéricos.
  */
@@ -52,23 +58,23 @@ export function normalizeToInternationalWhatsApp(value: string): string {
 }
 
 /**
- * Monta o texto amigável da mensagem para envio no WhatsApp.
+ * Monta o texto da mensagem formatada para envio no WhatsApp.
  */
 export function buildWhatsAppMessage(name: string, revealUrl: string): string {
   return [
-    `🎁 *AMIGO OCULTO* 🎁`,
-    ``,
-    `Olá, *${name}*! O sorteio já aconteceu! 🎉`,
-    ``,
-    `Descubra quem você tirou abrindo seu envelope secreto:`,
-    `👉 ${revealUrl}`,
-    ``,
-    `🤫 *Aviso:* Guarde segredo até o dia da revelação!`,
+    `${EMOJI_PRESENTE} *AMIGO OCULTO* ${EMOJI_PRESENTE}`,
+    '',
+    `Olá, *${name}*! O sorteio já aconteceu! ${EMOJI_FESTA}`,
+    '',
+    'Descubra quem você tirou abrindo seu envelope secreto:',
+    `${EMOJI_APONTANDO} ${revealUrl}`,
+    '',
+    `${EMOJI_SEGREDO} *Aviso:* Guarde segredo até o dia da revelação!`,
   ].join('\n');
 }
 
 /**
- * Monta o link para o WhatsApp Web / App com a mensagem 100% URL-encoded (UTF-8).
+ * Monta o link para o WhatsApp Web / App com mensagem codificada via encodeURIComponent.
  */
 export function buildWhatsAppUrl(phone: string, name: string, revealUrl: string): string {
   const internationalNumber = normalizeToInternationalWhatsApp(phone);
