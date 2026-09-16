@@ -55,17 +55,20 @@ export function normalizeToInternationalWhatsApp(value: string): string {
  * Monta o texto amigável da mensagem para envio no WhatsApp.
  */
 export function buildWhatsAppMessage(name: string, revealUrl: string): string {
-  return (
-    `🎁 *Amigo Oculto* 🎁\n\n` +
-    `Olá, *${name}*! O sorteio do nosso Amigo Oculto foi realizado com sucesso.\n\n` +
-    `Descubra quem você tirou clicando no seu envelope secreto individual:\n` +
-    `👉 ${revealUrl}\n\n` +
-    `🤫 *Atenção:* Guarde segredo até o momento da nossa revelação!`
-  );
+  return [
+    `🎁 *AMIGO OCULTO* 🎁`,
+    ``,
+    `Olá, *${name}*! O sorteio já aconteceu! 🎉`,
+    ``,
+    `Descubra quem você tirou abrindo seu envelope secreto:`,
+    `👉 ${revealUrl}`,
+    ``,
+    `🤫 *Aviso:* Guarde segredo até o dia da revelação!`,
+  ].join('\n');
 }
 
 /**
- * Monta o link para o WhatsApp Web / App.
+ * Monta o link para o WhatsApp Web / App com a mensagem 100% URL-encoded (UTF-8).
  */
 export function buildWhatsAppUrl(phone: string, name: string, revealUrl: string): string {
   const internationalNumber = normalizeToInternationalWhatsApp(phone);
