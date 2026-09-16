@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎁 Amigo Oculto - Sorteio Online via WhatsApp
 
-## Getting Started
+Aplicação moderna e segura desenvolvida em **Next.js (App Router, TypeScript e Tailwind CSS)** para realização de sorteios de Amigo Oculto com envio de links individuais e criptografados via WhatsApp.
 
-First, run the development server:
+---
 
+## 🔒 Destaques e Segurança
+
+- **Sigilo Total:** O organizador **NÃO** visualiza quem tirou quem na tela. O resultado de cada participante fica selado em um token cifrado.
+- **Criptografia AES:** Utiliza `crypto-js` para cifrar o par `{ de: "Nome", para: "Nome Sorteado" }`, gerando tokens URL-safe.
+- **Sorteio Cíclico Seguro (Derangement):** Implementação de ciclo hamiltoniano com embaralhamento Fisher-Yates, garantindo matematicamente que **ninguém tire a si mesmo** e que todos tenham um amigo oculto válido.
+- **Ordem de Exibição Protegida:** A lista de botões mantém a ordem original de cadastro, impedindo que a ordem na tela revele a cadeia do sorteio.
+- **Envio Direto pelo WhatsApp:** Botão individual com link formatado (`https://wa.me/55...`) contendo mensagem personalizada e link do envelope secreto.
+- **Acompanhamento de Envios:** Indicadores visuais de status (enviado / copiado) e contador de progresso.
+- **Experiência de Revelação:** Página com `<Suspense>`, abertura interativa do envelope e explosão de confetes com `canvas-confetti`.
+
+---
+
+## 🚀 Como Executar Localmente
+
+### 1. Instalar Dependências
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. (Opcional) Variável de Ambiente
+Crie um arquivo `.env.local` na raiz caso queira customizar a chave secreta de criptografia:
+```env
+NEXT_PUBLIC_CRYPTO_SECRET="sua-chave-secreta-super-segura"
+```
+*(Caso não seja definida, o sistema utiliza um fallback seguro padrão).*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Rodar o Servidor de Desenvolvimento
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
-## Learn More
+### 4. Testar o Build de Produção
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ☁️ Deploy na Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Suba o projeto para o seu repositório no **GitHub**, **GitLab** ou **Bitbucket**.
+2. Acesse o painel da [Vercel](https://vercel.com) e clique em **"Add New Project"**.
+3. Importe o repositório do projeto.
+4. (Opcional) Em **Environment Variables**, adicione a variável `NEXT_PUBLIC_CRYPTO_SECRET` com o seu segredo.
+5. Clique em **Deploy**. A aplicação estará no ar com HTTPS em instantes!
