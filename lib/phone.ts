@@ -2,7 +2,7 @@
  * Utilitários para formatação, validação e links de WhatsApp.
  */
 
-// Definição de emojis via escapes Unicode para imunidade contra corrupção de encoding (ANSI / UTF-8 no Windows)
+// Emojis completos via Unicode escapes para uso no Clipboard (Ctrl+V)
 const EMOJI_PRESENTE = '\u{1F381}';   // 🎁
 const EMOJI_FESTA = '\u{1F389}';      // 🎉
 const EMOJI_APONTANDO = '\u{1F449}';  // 👉
@@ -58,9 +58,26 @@ export function normalizeToInternationalWhatsApp(value: string): string {
 }
 
 /**
- * Monta o texto da mensagem formatada para envio no WhatsApp.
+ * Mensagem para URL wa.me: usa caracteres tipográficos universais (Unicode BMP)
+ * imunes à corrupção de protocolo no WhatsApp Desktop do Windows.
  */
-export function buildWhatsAppMessage(name: string, revealUrl: string): string {
+export function buildWhatsAppMessageUrl(name: string, revealUrl: string): string {
+  return [
+    '★ *AMIGO OCULTO* ★',
+    '',
+    `Olá, *${name}*! O sorteio já aconteceu! ✦`,
+    '',
+    'Descubra quem você tirou abrindo seu envelope secreto:',
+    `➔ ${revealUrl}`,
+    '',
+    '❖ *Aviso:* Guarde segredo até o dia da revelação!',
+  ].join('\n');
+}
+
+/**
+ * Mensagem completa com emojis reais para cópia direta (Ctrl+V) no WhatsApp Desktop/Web.
+ */
+export function buildWhatsAppMessageClipboard(name: string, revealUrl: string): string {
   return [
     `${EMOJI_PRESENTE} *AMIGO OCULTO* ${EMOJI_PRESENTE}`,
     '',
@@ -74,10 +91,15 @@ export function buildWhatsAppMessage(name: string, revealUrl: string): string {
 }
 
 /**
- * Monta o link para o WhatsApp Web / App com mensagem codificada via encodeURIComponent.
+ * Alias padrão para mensagem de URL.
+ */
+export const buildWhatsAppMessage = buildWhatsAppMessageUrl;
+
+/**
+ * Monta o link para o WhatsApp Web / App com caracteres BMP universais.
  */
 export function buildWhatsAppUrl(phone: string, name: string, revealUrl: string): string {
   const internationalNumber = normalizeToInternationalWhatsApp(phone);
-  const message = buildWhatsAppMessage(name, revealUrl);
+  const message = buildWhatsAppMessageUrl(name, revealUrl);
   return `https://wa.me/${internationalNumber}?text=${encodeURIComponent(message)}`;
 }

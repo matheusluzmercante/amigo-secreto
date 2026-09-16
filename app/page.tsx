@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   AlertCircle,
   PartyPopper,
+  MessageSquare,
 } from 'lucide-react';
 import { Participant, DrawItemResult, performDraw } from '@/lib/draw';
 import {
@@ -21,6 +22,7 @@ import {
   cleanPhoneNumber,
   isValidPhoneNumber,
   buildWhatsAppUrl,
+  buildWhatsAppMessageClipboard,
 } from '@/lib/phone';
 
 export default function Home() {
@@ -33,7 +35,8 @@ export default function Home() {
   const [isDrawn, setIsDrawn] = useState(false);
   const [drawResults, setDrawResults] = useState<DrawItemResult[]>([]);
   const [sentMap, setSentMap] = useState<Record<string, boolean>>({});
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -146,13 +149,39 @@ export default function Home() {
         document.execCommand('copy');
         document.body.removeChild(textArea);
       }
-      setCopiedId(id);
+      setCopiedLinkId(id);
       setSentMap((prev) => ({ ...prev, [id]: true }));
       setTimeout(() => {
-        setCopiedId((curr) => (curr === id ? null : curr));
+        setCopiedLinkId((curr) => (curr === id ? null : curr));
       }, 2500);
     } catch {
       alert(`Copie o link manualmente: ${revealUrl}`);
+    }
+  };
+
+  // Copiar mensagem completa com emojis reais (ideal para colar via Ctrl+V no WhatsApp Desktop)
+  const handleCopyMessage = async (id: string, name: string, token: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const revealUrl = `${origin}/revelar?token=${token}`;
+    const message = buildWhatsAppMessageClipboard(name, revealUrl);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(message);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = message;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopiedMsgId(id);
+      setSentMap((prev) => ({ ...prev, [id]: true }));
+      setTimeout(() => {
+        setCopiedMsgId((curr) => (curr === id ? null : curr));
+      }, 2500);
+    } catch {
+      alert(`Copie a mensagem manualmente:\n\n${message}`);
     }
   };
 
@@ -414,7 +443,8 @@ export default function Home() {
               <div className="space-y-3">
                 {drawResults.map((item) => {
                   const isSent = Boolean(sentMap[item.id]);
-                  const isCopied = copiedId === item.id;
+                  const isLinkCopied = copiedLinkId === item.id;
+                  const isMsgCopied = copiedMsgId === item.id;
 
                   return (
                     <div
@@ -454,27 +484,51 @@ export default function Home() {
                       </div>
 
                       {/* Botões de Ação */}
-                      <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto">
+                      <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto shrink-0 w-full sm:w-auto">
                         {/* Botão Copiar Link */}
                         <button
                           onClick={() => handleCopyLink(item.id, item.token)}
                           type="button"
-                          title="Copiar Link Individual"
+                          title="Copiar apenas o link individual"
                           className={`cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition ${
-                            isCopied
+                            isLinkCopied
                               ? 'bg-emerald-600 text-white border-emerald-600'
                               : 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'
                           }`}
                         >
-                          {isCopied ? (
+                          {isLinkCopied ? (
                             <>
-                              <Check className="w-4 h-4" />
-                              <span>Copiado!</span>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Link Copiado!</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="w-4 h-4" />
+                              <Copy className="w-3.5 h-3.5" />
                               <span>Copiar Link</span>
+                            </>
+                          )}
+                        </button>
+
+                        {/* Botão Copiar Mensagem Completa (para colar via Ctrl+V no WhatsApp Desktop) */}
+                        <button
+                          onClick={() => handleCopyMessage(item.id, item.name, item.token)}
+                          type="button"
+                          title="Copiar mensagem completa com emojis para colar direto no WhatsApp"
+                          className={`cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition ${
+                            isMsgCopied
+                              ? 'bg-emerald-600 text-white border-emerald-600'
+                              : 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                          }`}
+                        >
+                          {isMsgCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Mensagem Copiada!</span>
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>Copiar Mensagem</span>
                             </>
                           )}
                         </button>
@@ -483,7 +537,8 @@ export default function Home() {
                         <button
                           onClick={() => handleSendWhatsApp(item)}
                           type="button"
-                          className="flex-1 sm:flex-initial cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/25 transition-all"
+                          title="Abrir no WhatsApp Web / App"
+                          className="flex-1 sm:flex-initial cursor-pointer inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/25 transition-all"
                         >
                           <Send className="w-4 h-4" />
                           <span>📲 Enviar via WhatsApp</span>
