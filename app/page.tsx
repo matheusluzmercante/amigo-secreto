@@ -22,7 +22,7 @@ import {
   cleanPhoneNumber,
   isValidPhoneNumber,
   buildWhatsAppUrl,
-  buildWhatsAppMessageClipboard,
+  buildWhatsAppMessage,
 } from '@/lib/phone';
 
 export default function Home() {
@@ -159,11 +159,11 @@ export default function Home() {
     }
   };
 
-  // Copiar mensagem completa com emojis reais (ideal para colar via Ctrl+V no WhatsApp Desktop)
+  // Copiar mensagem completa
   const handleCopyMessage = async (id: string, name: string, token: string) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const revealUrl = `${origin}/revelar?token=${token}`;
-    const message = buildWhatsAppMessageClipboard(name, revealUrl);
+    const message = buildWhatsAppMessage(name, revealUrl);
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(message);
@@ -509,11 +509,11 @@ export default function Home() {
                           )}
                         </button>
 
-                        {/* Botão Copiar Mensagem Completa (para colar via Ctrl+V no WhatsApp Desktop) */}
+                        {/* Botão Copiar Mensagem Completa */}
                         <button
                           onClick={() => handleCopyMessage(item.id, item.name, item.token)}
                           type="button"
-                          title="Copiar mensagem completa com emojis para colar direto no WhatsApp"
+                          title="Copiar mensagem completa para colar no WhatsApp"
                           className={`cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition ${
                             isMsgCopied
                               ? 'bg-emerald-600 text-white border-emerald-600'

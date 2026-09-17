@@ -2,12 +2,6 @@
  * Utilitários para formatação, validação e links de WhatsApp.
  */
 
-// Emojis completos via Unicode escapes para uso no Clipboard (Ctrl+V)
-const EMOJI_PRESENTE = '\u{1F381}';   // 🎁
-const EMOJI_FESTA = '\u{1F389}';      // 🎉
-const EMOJI_APONTANDO = '\u{1F449}';  // 👉
-const EMOJI_SEGREDO = '\u{1F92B}';    // 🤫
-
 /**
  * Remove todos os caracteres não numéricos.
  */
@@ -58,48 +52,35 @@ export function normalizeToInternationalWhatsApp(value: string): string {
 }
 
 /**
- * Mensagem para URL wa.me: usa caracteres tipográficos universais (Unicode BMP)
- * imunes à corrupção de protocolo no WhatsApp Desktop do Windows.
+ * Monta o texto simples e direto da mensagem para envio ou cópia no WhatsApp.
  */
-export function buildWhatsAppMessageUrl(name: string, revealUrl: string): string {
+export function buildWhatsAppMessage(nome: string, link: string): string {
   return [
-    '★ *AMIGO OCULTO* ★',
+    '🎁 *AMIGO OCULTO* 🎁',
     '',
-    `Olá, *${name}*! O sorteio já aconteceu! ✦`,
+    `Olá, *${nome}*! Seu amigo oculto já foi sorteado! 🎉`,
     '',
-    'Descubra quem você tirou abrindo seu envelope secreto:',
-    `➔ ${revealUrl}`,
+    'Abra o envelope para descobrir quem é:',
+    `👉 ${link}`,
     '',
-    '❖ *Aviso:* Guarde segredo até o dia da revelação!',
+    '🤫 *Guarde segredo!*',
   ].join('\n');
 }
 
 /**
- * Mensagem completa com emojis reais para cópia direta (Ctrl+V) no WhatsApp Desktop/Web.
+ * Aliases para compatibilidade.
  */
-export function buildWhatsAppMessageClipboard(name: string, revealUrl: string): string {
-  return [
-    `${EMOJI_PRESENTE} *AMIGO OCULTO* ${EMOJI_PRESENTE}`,
-    '',
-    `Olá, *${name}*! O sorteio já aconteceu! ${EMOJI_FESTA}`,
-    '',
-    'Descubra quem você tirou abrindo seu envelope secreto:',
-    `${EMOJI_APONTANDO} ${revealUrl}`,
-    '',
-    `${EMOJI_SEGREDO} *Aviso:* Guarde segredo até o dia da revelação!`,
-  ].join('\n');
-}
+export const buildWhatsAppMessageClipboard = buildWhatsAppMessage;
+export const buildWhatsAppMessageUrl = buildWhatsAppMessage;
 
 /**
- * Alias padrão para mensagem de URL.
+ * Monta o link para o WhatsApp Web / App no formato padrão api.whatsapp.com.
  */
-export const buildWhatsAppMessage = buildWhatsAppMessageUrl;
-
-/**
- * Monta o link para o WhatsApp Web / App com caracteres BMP universais.
- */
-export function buildWhatsAppUrl(phone: string, name: string, revealUrl: string): string {
-  const internationalNumber = normalizeToInternationalWhatsApp(phone);
-  const message = buildWhatsAppMessageUrl(name, revealUrl);
-  return `https://wa.me/${internationalNumber}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(phone: string, nome: string, link: string): string {
+  let numeroLimpo = cleanPhoneNumber(phone);
+  if (numeroLimpo.startsWith('55') && (numeroLimpo.length === 12 || numeroLimpo.length === 13)) {
+    numeroLimpo = numeroLimpo.slice(2);
+  }
+  const mensagem = buildWhatsAppMessage(nome, link);
+  return `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`;
 }
